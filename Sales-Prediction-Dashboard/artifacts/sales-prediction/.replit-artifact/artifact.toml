@@ -1,0 +1,53 @@
+kind = "web"
+previewPath = "/"
+title = "SalesPredict AI"
+description = "A polished analytics dashboard for exploring advertising spend and estimating sales. It includes verified insights from the supplied Advertising dataset and a trained three-input Python regression model."
+version = "1.0.0"
+id = "artifacts/sales-prediction"
+router = "path"
+
+[[services]]
+name = "web"
+paths = ["/"]
+localPort = 22433
+
+[services.development]
+run = "pnpm --filter @workspace/sales-prediction run dev"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/sales-prediction", "run", "build"]
+serve = "static"
+publicDir = "artifacts/sales-prediction/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22433"
+BASE_PATH = "/"
+
+[[services]]
+name = "python-model"
+paths = ["/predict", "/model-info", "/health"]
+localPort = 8000
+
+[services.development]
+run = "python -m uvicorn app:app --app-dir artifacts/sales-prediction/backend --host 0.0.0.0 --port $PORT"
+
+[services.production]
+
+[services.production.build]
+args = ["uv", "sync", "--frozen", "--no-dev"]
+
+[services.production.run]
+args = [".venv/bin/python", "-m", "uvicorn", "app:app", "--app-dir", "artifacts/sales-prediction/backend", "--host", "0.0.0.0", "--port", "8000"]
+
+[services.production.run.env]
+PORT = "8000"
+
+[services.production.health.startup]
+path = "/health"
+
+[services.env]
+PORT = "8000"

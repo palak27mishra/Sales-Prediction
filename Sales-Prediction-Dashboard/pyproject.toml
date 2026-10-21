@@ -1,0 +1,10 @@
+[project]
+name = "sales-prediction-model"
+version = "0.1.0"
+description = "Python API and multiple linear regression model for SalesPredict AI"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.159.1",
+    "scikit-learn>=1.9.1",
+    "uvicorn>=0.54.0",
+]
